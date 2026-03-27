@@ -1,7 +1,56 @@
-# Scopus Bot
+# Create the markdown file for the user to download
 
-Automatización de búsquedas en Scopus y exportación a Excel.
+content = """# Scopus Bot - Estado del Proyecto
 
-## Setup
-```bash
-pip install -r requirements.txt
+## 🧠 Descripción General
+Proyecto para automatizar Scopus con Playwright:
+- Navegación institucional
+- Login
+- Acceso a Scopus
+- Búsqueda
+- Filtros
+- Scraping
+- Preparación de datos
+
+## ⚙️ Stack
+- Python
+- Playwright (sync)
+- Arquitectura modular
+
+## 🎯 Filtros
+### Subject Area
+- Engineering
+- Materials Science
+- Environmental Science
+- Earth and Planetary Sciences
+
+### Document Type
+- Article
+- Review
+- Conference paper
+
+## 🧱 Modelo de Datos
+- title
+- doc_type
+- authors
+- source
+- year
+- citations
+- doi (link Scopus)
+
+## 🔁 Flujo
+1. Buscar
+2. Configurar resultados
+3. Aplicar subject area
+4. Loop por document type
+5. Scraping
+6. Deduplicación
+
+## 📊 Estado
+✔ Todo funcional hasta scraping + deduplicación
+
+## 🚀 Próximos pasos
+- Exportar a Excel
+- Paginación
+
+

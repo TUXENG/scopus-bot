@@ -12,6 +12,7 @@ from scopus_bot.core.portal_page import PortalPage
 from scopus_bot.core.scopus_page import ScopusPage
 from scopus_bot.core.search_results_page import SearchResultsPage
 from scopus_bot.utils.logger import configure_logger
+from scopus_bot.core.scrapers.scopus_results_scraper import ScopusResultsScraper
 
 
 def main() -> None:
@@ -94,8 +95,23 @@ def main() -> None:
         document_type_name = "Article"
         document_type_filter = DocumentTypeFilter(scopus_tab)
         document_type_filter.reset_and_apply(DOCUMENT_TYPE_TEST_IDS[document_type_name])
-
         logger.info("Filtro Document Type aplicado: %s", document_type_name)
+
+        scraper = ScopusResultsScraper(scopus_tab)
+        documents = scraper.extract_current_page(document_type=document_type_name)
+
+        logger.info("Documentos extraídos: %s", len(documents))
+
+        for index, document in enumerate(documents[:5], start=1):
+            logger.info(
+                "[%s] %s | %s | %s | %s | %s",
+                index,
+                document.title,
+                document.doc_type,
+                document.year,
+                document.citations,
+                document.doi,
+            )
 
         input("Presiona Enter para cerrar...")
 
