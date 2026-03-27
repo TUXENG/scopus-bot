@@ -1,14 +1,15 @@
 from datetime import datetime
 
+from scopus_bot.config.filters import SUBJECT_AREA_TEST_IDS
 from scopus_bot.config.settings import settings
 from scopus_bot.core.browser import create_browser_session
-from scopus_bot.core.portal_page import PortalPage
-from scopus_bot.core.login_page import LoginPage
 from scopus_bot.core.extranet_page import ExtranetPage
 from scopus_bot.core.library_resources_page import LibraryResourcesPage
+from scopus_bot.core.login_page import LoginPage
+from scopus_bot.core.portal_page import PortalPage
 from scopus_bot.core.scopus_page import ScopusPage
-from scopus_bot.utils.logger import configure_logger
 from scopus_bot.core.search_results_page import SearchResultsPage
+from scopus_bot.utils.logger import configure_logger
 
 
 def main() -> None:
@@ -53,8 +54,8 @@ def main() -> None:
 
         scopus_page.search("machine learning")
         logger.info("Búsqueda enviada")
-        logger.info("Nueva URL: %s", scopus_page.current_url())
-      
+        logger.info("URL tras búsqueda: %s", scopus_page.current_url())
+
         results_page = SearchResultsPage(scopus_tab)
         results_page.wait_until_loaded()
         logger.info("Resultados cargados")
@@ -63,6 +64,16 @@ def main() -> None:
 
         results_page.prepare_results_view()
         logger.info("Resultados configurados: sort by cited by highest, display 200")
+
+        subject_area_result = results_page.apply_subject_area_limit(
+            SUBJECT_AREA_TEST_IDS
+        )
+
+        logger.info("Subject areas aplicadas: %s", subject_area_result["selected"])
+
+        if subject_area_result["missing"]:
+            logger.warning("No encontradas: %s", subject_area_result["missing"])
+
         input("Presiona Enter para cerrar...")
 
     finally:
