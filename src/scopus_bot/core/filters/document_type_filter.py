@@ -1,9 +1,27 @@
 from playwright.sync_api import Locator, Page
+import logging
 
+logger = logging.getLogger(__name__)
 
 class DocumentTypeFilter:
     def __init__(self, page: Page) -> None:
         self.page = page
+
+    def validate_applied(self, expected_name: str) -> bool:
+        self.page.wait_for_load_state("domcontentloaded")
+        self.page.wait_for_load_state("networkidle")
+
+        body_text = self.page.locator("body").inner_text(timeout=10_000)
+
+        if expected_name in body_text:
+            logger.info("Validación document type encontrada en página: %s", expected_name)
+            return True
+
+        logger.warning(
+            "No se pudo validar visualmente el document type aplicado: %s",
+            expected_name,
+        )
+        return False
 
     def wait_until_loaded(self) -> None:
         self.page.wait_for_load_state("domcontentloaded")

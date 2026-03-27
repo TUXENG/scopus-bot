@@ -85,6 +85,9 @@ def run() -> None:
             ", ".join(subject_area_result["selected"]),
         )
 
+        if subject_area_result["selected"]:
+            subject_filter.validate_applied(subject_area_result["selected"])
+
         if subject_area_result["missing"]:
             logger.warning(
                 "Subject areas no encontradas: %s",
@@ -96,6 +99,7 @@ def run() -> None:
         document_type_filter = DocumentTypeFilter(scopus_tab)
         document_type_filter.reset_and_apply(DOCUMENT_TYPE_TEST_IDS[document_type_name])
         logger.info("Filtro Document Type aplicado: %s", document_type_name)
+        document_type_filter.validate_applied(document_type_name)
 
         scraper = ScopusResultsScraper(scopus_tab)
         documents = scraper.extract_current_page(document_type=document_type_name)
