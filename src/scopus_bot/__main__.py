@@ -2,18 +2,17 @@ from datetime import datetime
 
 from scopus_bot.config.filters import DOCUMENT_TYPE_TEST_IDS, SUBJECT_AREA_TEST_IDS
 from scopus_bot.config.settings import settings
-from scopus_bot.core.browser import create_browser_session
-from scopus_bot.core.extranet_page import ExtranetPage
 from scopus_bot.core.filters.document_type_filter import DocumentTypeFilter
 from scopus_bot.core.filters.subject_area_filter import SubjectAreaFilter
-from scopus_bot.core.library_resources_page import LibraryResourcesPage
-from scopus_bot.core.login_page import LoginPage
-from scopus_bot.core.portal_page import PortalPage
-from scopus_bot.core.scopus_page import ScopusPage
-from scopus_bot.core.search_results_page import SearchResultsPage
 from scopus_bot.utils.logger import configure_logger
-from scopus_bot.core.scrapers.scopus_results_scraper import ScopusResultsScraper
-
+from scopus_bot.core.browser.session import create_browser_session
+from scopus_bot.core.pages.extranet_page import ExtranetPage
+from scopus_bot.core.pages.library_resources_page import LibraryResourcesPage
+from scopus_bot.core.pages.login_page import LoginPage
+from scopus_bot.core.pages.portal_page import PortalPage
+from scopus_bot.core.pages.scopus_page import ScopusPage
+from scopus_bot.core.pages.search_results_page import SearchResultsPage
+from scopus_bot.core.scraping.scopus_results_scraper import ScopusResultsScraper
 
 def main() -> None:
     settings.ensure_directories()
