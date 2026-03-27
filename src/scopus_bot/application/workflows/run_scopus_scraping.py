@@ -95,18 +95,45 @@ def run() -> None:
             )
 
         # Document type filter - prueba con un tipo
-        document_type_name = "Article"
         document_type_filter = DocumentTypeFilter(scopus_tab)
-        document_type_filter.reset_and_apply(DOCUMENT_TYPE_TEST_IDS[document_type_name])
-        logger.info("Filtro Document Type aplicado: %s", document_type_name)
-        document_type_filter.validate_applied(document_type_name)
-
         scraper = ScopusResultsScraper(scopus_tab)
-        documents = scraper.extract_current_page(document_type=document_type_name)
 
-        logger.info("Documentos extraídos: %s", len(documents))
+        document_type_names = [
+            "Article",
+            "Review",
+            "Conference paper",
+        ]
 
-        for index, document in enumerate(documents[:5], start=1):
+        all_documents = []
+
+        for document_type_name in document_type_names:
+            logger.info("Iniciando extracción para Document Type: %s", document_type_name)
+
+            test_id = DOCUMENT_TYPE_TEST_IDS.get(document_type_name)
+            if not test_id:
+                logger.warning(
+                    "No existe test id configurado para Document Type: %s",
+                    document_type_name,
+                )
+                continue
+
+            document_type_filter.reset_and_apply(test_id)
+            logger.info("Filtro Document Type aplicado: %s", document_type_name)
+
+            document_type_filter.validate_applied(document_type_name)
+
+            documents = scraper.extract_current_page(document_type=document_type_name)
+            logger.info(
+                "Documentos extraídos para %s: %s",
+                document_type_name,
+                len(documents),
+            )
+
+            all_documents.extend(documents)
+
+        logger.info("Total acumulado de documentos: %s", len(all_documents))
+
+        for index, document in enumerate(all_documents[:10], start=1):
             logger.info(
                 "[%s] %s | %s | %s | %s | %s",
                 index,
