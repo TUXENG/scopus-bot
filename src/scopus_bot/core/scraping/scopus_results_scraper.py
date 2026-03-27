@@ -1,8 +1,12 @@
-import re
 from playwright.sync_api import Locator, Page
-
 from scopus_bot.data.models import Document
 import logging
+from scopus_bot.core.scraping.normalizers import (
+    normalize_text,
+    normalize_optional_text,
+    normalize_year,
+    normalize_url,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -69,15 +73,15 @@ class ScopusResultsScraper:
         return documents
 
     def extract_row(self, row: Locator, document_type: str) -> Document:
-        title = self._normalize_text(self._get_title(row))
-        authors = self._normalize_optional_text(self._get_authors(row))
-        source = self._normalize_optional_text(self._get_source(row))
-        year = self._normalize_year(self._get_year(row))
-        doi = self._normalize_url(self._get_link(row))
+        title = normalize_text(self._get_title(row))
+        authors = normalize_optional_text(self._get_authors(row))
+        source = normalize_optional_text(self._get_source(row))
+        year = normalize_year(self._get_year(row))
+        doi = normalize_url(self._get_link(row))
 
         return Document(
             title=title,
-            doc_type=self._normalize_text(document_type),
+            doc_type=normalize_text(document_type),
             authors=authors,
             source=source,
             year=year,
@@ -227,40 +231,6 @@ class ScopusResultsScraper:
         digits = re.sub(r"[^\d]", "", text or "")
         return int(digits) if digits else 0
 
-    def _normalize_text(self, value: str | None) -> str:
-        if not value:
-            return ""
+    
 
-        return re.sub(r"\s+", " ", value).strip()
-
-    def _normalize_optional_text(self, value: str | None) -> str | None:
-        normalized = self._normalize_text(value)
-        return normalized or None
-
-
-    def _normalize_year(self, value: str | None) -> int | None:
-        normalized = self._normalize_text(value)
-
-        if not normalized:
-            return None
-
-        match = re.search(r"\b(19|20)\d{2}\b", normalized)
-        if not match:
-            return None
-
-        return int(match.group(0))
-
-
-    def _normalize_url(self, value: str | None) -> str | None:
-        normalized = self._normalize_text(value)
-
-        if not normalized:
-            return None
-
-        if normalized.startswith("http://") or normalized.startswith("https://"):
-            return normalized
-
-        if normalized.startswith("/"):
-            return f"https://www.scopus.com{normalized}"
-
-        return normalized
+    
