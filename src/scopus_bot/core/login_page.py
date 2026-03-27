@@ -15,7 +15,6 @@ class LoginPage:
         self.page.fill("input[name='password']", password)
 
     def click_ingresar(self) -> None:
-        # opción robusta por texto
         self.page.click("button:has-text('Ingresar')")
 
     def login(self, username: str, password: str) -> None:
@@ -23,3 +22,4 @@ class LoginPage:
         self.fill_username(username)
         self.fill_password(password)
         self.click_ingresar()
+        self.page.wait_for_load_state("domcontentloaded")
