@@ -25,3 +25,4 @@ class SearchResult:
     @property
     def total_documents(self) -> int:
         return len(self.documents)
+

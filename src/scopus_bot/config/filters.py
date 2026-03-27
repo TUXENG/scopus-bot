@@ -1,10 +1,3 @@
-TOPIC_KEYWORDS = [
-    "Environmental risk",
-    "Natural hazards",
-    "Climate risk",
-    "Ecological risk",
-]
-
 SUBJECT_AREA_TEST_IDS = {
     "Engineering": "facet-option-ENGI",
     "Materials Science": "facet-option-MATE",
@@ -12,7 +5,8 @@ SUBJECT_AREA_TEST_IDS = {
     "Earth and Planetary Sciences": "facet-option-EART",
 }
 
-SUBJECT_AREAS_EXCLUDE = [
-    "Medicine",
-    "Economics, Econometrics and Finance",
-]
+DOCUMENT_TYPE_TEST_IDS = {
+    "Article": "facet-option-ar",
+    "Review": "facet-option-re",
+    "Conference paper": "facet-option-cp",
+}
