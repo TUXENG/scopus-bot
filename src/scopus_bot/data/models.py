@@ -4,13 +4,13 @@ from datetime import datetime
 
 @dataclass
 class Document:
-    title: str = ""
-    doc_type: str = ""
-    authors: str = ""
-    source: str = ""
-    year: str = ""
-    citations: int = 0
-    doi: str = ""
+    title: str
+    doc_type: str
+    authors: str | None
+    source: str | None
+    year: int | None
+    citations: int
+    doi: str | None
 
 
 @dataclass
@@ -25,4 +25,6 @@ class SearchResult:
     @property
     def total_documents(self) -> int:
         return len(self.documents)
+
+
 
