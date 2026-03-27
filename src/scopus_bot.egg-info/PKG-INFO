@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: scopus-bot
+Version: 0.1.0
+Summary: Automatización de búsquedas en Scopus y exportación de resultados
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: playwright<2.0,>=1.40
+Requires-Dist: openpyxl<4.0,>=3.1
+Requires-Dist: python-dotenv<2.0,>=1.0
+
+# Scopus Bot
+
+Automatización de búsquedas en Scopus y exportación a Excel.
+
+## Setup
+```bash
+pip install -r requirements.txt

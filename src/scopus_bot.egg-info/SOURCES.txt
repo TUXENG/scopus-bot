@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+src/scopus_bot/__init__.py
+src/scopus_bot/__main__.py
+src/scopus_bot.egg-info/PKG-INFO
+src/scopus_bot.egg-info/SOURCES.txt
+src/scopus_bot.egg-info/dependency_links.txt
+src/scopus_bot.egg-info/requires.txt
+src/scopus_bot.egg-info/top_level.txt
+src/scopus_bot/config/settings.py
+src/scopus_bot/data/models.py
+src/scopus_bot/utils/logger.py
