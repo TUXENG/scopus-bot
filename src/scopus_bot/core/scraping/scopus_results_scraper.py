@@ -2,7 +2,9 @@ import re
 from playwright.sync_api import Locator, Page
 
 from scopus_bot.data.models import Document
+import logging
 
+logger = logging.getLogger(__name__)
 
 class ScopusResultsScraper:
     def __init__(self, page: Page) -> None:
@@ -19,7 +21,8 @@ class ScopusResultsScraper:
             try:
                 self.page.locator(selector).first.wait_for(timeout=12_000)
                 return True
-            except Exception:
+            except Exception as exc:
+                logger.debug("Selector falló en wait_for_results_table: %s", selector)
                 continue
 
         return False
@@ -51,9 +54,16 @@ class ScopusResultsScraper:
 
             try:
                 document = self.extract_row(row, document_type)
+
                 if document.title and document.title != "(sin titulo)":
                     documents.append(document)
-            except Exception:
+
+            except Exception as exc:
+                logger.warning(
+                    "Error extrayendo fila %s: %s",
+                    index,
+                    str(exc),
+                )
                 continue
 
         return documents
@@ -90,7 +100,8 @@ class ScopusResultsScraper:
                 text = element.inner_text().strip()
                 if text:
                     return re.sub(r"\s+", " ", text)
-            except Exception:
+            except Exception as exc:
+                logger.debug("Error en _get_title: %s", str(exc))
                 continue
 
         return "(sin titulo)"
