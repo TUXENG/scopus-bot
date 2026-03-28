@@ -13,6 +13,7 @@ from scopus_bot.core.pages.scopus_page import ScopusPage
 from scopus_bot.core.pages.search_results_page import SearchResultsPage
 from scopus_bot.core.scraping.scopus_results_scraper import ScopusResultsScraper
 from scopus_bot.utils.logger import configure_logger
+from scopus_bot.core.scraping.deduplicator import deduplicate_documents
 
 
 def run() -> None:
@@ -131,18 +132,12 @@ def run() -> None:
 
             all_documents.extend(documents)
 
-        logger.info("Total acumulado de documentos: %s", len(all_documents))
+        logger.info("Total acumulado de documentos antes de deduplicar: %s", len(all_documents))
 
-        for index, document in enumerate(all_documents[:10], start=1):
-            logger.info(
-                "[%s] %s | %s | %s | %s | %s",
-                index,
-                document.title,
-                document.doc_type,
-                document.year,
-                document.citations,
-                document.doi,
-            )
+        unique_documents = deduplicate_documents(all_documents)
+
+        logger.info("Total de documentos después de deduplicar: %s", len(unique_documents))
+
 
         input("Presiona Enter para cerrar...")
 
