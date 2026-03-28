@@ -10,3 +10,5 @@ DOCUMENT_TYPE_TEST_IDS = {
     "Review": "facet-option-re",
     "Conference paper": "facet-option-cp",
 }
+
+NUMS_PAGE = 10

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from scopus_bot.config.filters import DOCUMENT_TYPE_TEST_IDS, SUBJECT_AREA_TEST_IDS
+from scopus_bot.config.filters import DOCUMENT_TYPE_TEST_IDS, SUBJECT_AREA_TEST_IDS, NUMS_PAGE
 from scopus_bot.config.settings import settings
 from scopus_bot.core.browser.session import create_browser_session
 from scopus_bot.core.filters.document_type_filter import DocumentTypeFilter
@@ -15,6 +15,51 @@ from scopus_bot.core.scraping.scopus_results_scraper import ScopusResultsScraper
 from scopus_bot.utils.logger import configure_logger
 from scopus_bot.core.scraping.deduplicator import deduplicate_documents
 
+def scrape_all_pages_for_document_type(
+    results_page: SearchResultsPage,
+    scraper: ScopusResultsScraper,
+    document_type_name: str,
+    logger,
+    max_pages: int = 10,
+) -> list:
+    documents = []
+    current_page = 1
+
+    while current_page <= max_pages:
+        logger.info(
+            "Extrayendo página %s para Document Type: %s",
+            current_page,
+            document_type_name,
+        )
+
+        page_documents = scraper.extract_current_page(document_type=document_type_name)
+        logger.info(
+            "Documentos extraídos en página %s para %s: %s",
+            current_page,
+            document_type_name,
+            len(page_documents),
+        )
+
+        documents.extend(page_documents)
+
+        if not results_page.has_next_page():
+            logger.info(
+                "No hay más páginas para Document Type: %s",
+                document_type_name,
+            )
+            break
+
+        moved = results_page.go_to_next_page()
+        if not moved:
+            logger.warning(
+                "No se pudo avanzar a la siguiente página para Document Type: %s",
+                document_type_name,
+            )
+            break
+
+        current_page += 1
+
+    return documents
 
 def run() -> None:
     settings.ensure_directories()
@@ -122,10 +167,17 @@ def run() -> None:
             logger.info("Filtro Document Type aplicado: %s", document_type_name)
 
             document_type_filter.validate_applied(document_type_name)
-
-            documents = scraper.extract_current_page(document_type=document_type_name)
+            results_page.go_to_first_page()
+            
+            documents = scrape_all_pages_for_document_type(
+                results_page=results_page,
+                scraper=scraper,
+                document_type_name=document_type_name,
+                logger=logger,
+                max_pages=NUMS_PAGE,
+            )
             logger.info(
-                "Documentos extraídos para %s: %s",
+                "Documentos extraídos para %s en todas las páginas: %s",
                 document_type_name,
                 len(documents),
             )
@@ -133,9 +185,7 @@ def run() -> None:
             all_documents.extend(documents)
 
         logger.info("Total acumulado de documentos antes de deduplicar: %s", len(all_documents))
-
         unique_documents = deduplicate_documents(all_documents)
-
         logger.info("Total de documentos después de deduplicar: %s", len(unique_documents))
 
 
