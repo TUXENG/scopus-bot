@@ -15,7 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 class ScopusRowExtractor:
-    def extract(self, row: Locator, document_type: str) -> Document:
+    def extract(
+        self,
+        row: Locator,
+        document_type: str,
+        keyword: str | None = None,
+    ) -> Document:
         title = normalize_text(self._get_title(row))
         authors = normalize_optional_text(self._get_authors(row))
         source = normalize_optional_text(self._get_source(row))
@@ -30,6 +35,7 @@ class ScopusRowExtractor:
             year=year,
             citations=self._get_citations(row),
             doi=doi,
+            keyword=normalize_text(keyword) if keyword else None,
         )
 
     def _get_title(self, row: Locator) -> str:

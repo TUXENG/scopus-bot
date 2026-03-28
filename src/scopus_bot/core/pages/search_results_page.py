@@ -179,3 +179,64 @@ class SearchResultsPage:
 
         logger.warning("No se pudo volver a la primera página")
         return False
+
+    def search(self, keyword: str) -> None:
+        self.scroll_to_top()
+
+        candidates = [
+            self.page.locator('input[type="search"]').first,
+            self.page.locator('input[placeholder*="Search"]').first,
+            self.page.locator('input[aria-label*="search" i]').first,
+            self.page.locator('input[name*="query" i]').first,
+        ]
+
+        search_input = None
+
+        for locator in candidates:
+            try:
+                if locator.count() == 0:
+                    continue
+
+                locator.scroll_into_view_if_needed()
+                locator.wait_for(state="visible", timeout=10_000)
+                search_input = locator
+                break
+            except Exception:
+                continue
+
+        if search_input is None:
+            raise RuntimeError(
+                "No se encontró el input de búsqueda en la página de resultados"
+            )
+
+        search_input.click()
+        search_input.press("Control+A")
+        search_input.press("Backspace")
+        search_input.fill(keyword)
+        search_input.press("Enter")
+
+        self.wait_until_loaded()
+
+    def scroll_to_top(self) -> None:
+        self.page.evaluate("window.scrollTo(0, 0)")
+        self.page.wait_for_timeout(1000)
+    
+    def set_year_to(self, year: int) -> None:
+        try:
+            input_to = self.page.locator('[data-testid="input-range-to"]').first
+
+            input_to.scroll_into_view_if_needed()
+            input_to.wait_for(state="visible", timeout=10_000)
+
+            input_to.click()
+            input_to.press("Control+A")
+            input_to.press("Backspace")
+
+            input_to.fill(str(year))
+
+            input_to.press("Enter")
+
+            self.wait_until_loaded()
+
+        except Exception as exc:
+            raise RuntimeError(f"No se pudo establecer el filtro de año TO: {year}") from exc

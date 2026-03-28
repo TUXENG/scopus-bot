@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 
+
 @dataclass
 class Document:
     title: str
@@ -11,6 +12,7 @@ class Document:
     year: int | None
     citations: int
     doi: str | None
+    keyword: str | None = None
 
 
 @dataclass

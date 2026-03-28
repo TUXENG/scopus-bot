@@ -11,4 +11,6 @@ DOCUMENT_TYPE_TEST_IDS = {
     "Conference paper": "facet-option-cp",
 }
 
-NUMS_PAGE = 10
+NUMS_PAGE = 1000
+
+FILTER_YEAR_TO = 2025
