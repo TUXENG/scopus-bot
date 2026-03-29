@@ -22,8 +22,8 @@ class Settings:
 
     @classmethod
     def from_env(cls) -> "Settings":
-        user = os.getenv("SCOPUS_USER")
-        password = os.getenv("SCOPUS_PASSWORD")
+        user = os.getenv("PORTAL_USER")
+        password = os.getenv("PORTAL_PASSWORD")
         portal_url = os.getenv("PORTAL_URL")
 
         if not user or not password or not portal_url:

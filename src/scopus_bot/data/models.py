@@ -10,7 +10,8 @@ class Document:
     source: str | None
     year: int | None
     citations: int
-    doi: str | None
+    doior: str | None
+    keyword: str | None
 
 
 @dataclass

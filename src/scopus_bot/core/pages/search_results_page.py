@@ -75,7 +75,17 @@ class SearchResultsPage:
         except Exception:
             return False
 
+    def scroll_to_top(self) -> None:
+        try:
+            self.page.evaluate("window.scrollTo(0, 0)")
+            self.page.wait_for_timeout(500)
 
+            # segundo scroll por si hay lazy UI
+            self.page.evaluate("window.scrollTo(0, 0)")
+            self.page.wait_for_timeout(500)
+
+        except Exception:
+            pass
     def scroll_to_bottom(self) -> None:
         self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         self.page.wait_for_timeout(1000)
@@ -179,3 +189,29 @@ class SearchResultsPage:
 
         logger.warning("No se pudo volver a la primera página")
         return False
+    def set_year_to(self, year: int) -> None:
+        try:
+            # ⚠️ bajar porque el filtro suele estar abajo
+            self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            self.page.wait_for_timeout(1000)
+
+            input_to = self.page.locator('[data-testid="input-range-to"]').first
+
+            if input_to.count() == 0:
+                raise RuntimeError("No se encontró el input 'to' del filtro de año")
+
+            input_to.scroll_into_view_if_needed()
+            input_to.wait_for(state="visible", timeout=10_000)
+
+            input_to.click()
+            input_to.press("Control+A")
+            input_to.press("Backspace")
+            input_to.fill(str(year))
+
+            # ⚠️ algunos filtros requieren Enter
+            input_to.press("Enter")
+
+            self.wait_until_loaded()
+
+        except Exception as exc:
+            raise RuntimeError(f"No se pudo establecer el filtro de año TO: {year}") from exc

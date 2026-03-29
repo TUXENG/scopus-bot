@@ -9,31 +9,69 @@ class ScopusPage:
         self.page.wait_for_load_state("domcontentloaded")
         self.page.wait_for_load_state("networkidle")
 
-    def title(self) -> str:
-        return self.page.title()
-
     def current_url(self) -> str:
         return self.page.url
 
-    def search_box(self):
-        return self.page.locator("input").first
+    def title(self) -> str:
+        return self.page.title()
 
     def fill_search_query(self, query: str) -> None:
-        search_input = self.search_box()
-        search_input.wait_for()
+        self.page.wait_for_load_state("domcontentloaded")
+        self.page.wait_for_timeout(1500)
+
+        candidates = [
+            self.page.get_by_role("textbox").first,
+            self.page.locator('input[type="search"]:visible').first,
+            self.page.locator('input[placeholder*="Search" i]:visible').first,
+            self.page.locator('input[aria-label*="search" i]:visible').first,
+            self.page.locator('input[name*="query" i]:visible').first,
+            self.page.locator("input:visible").first,
+            self.page.locator("textarea:visible").first,
+        ]
+
+        search_input = None
+
+        for locator in candidates:
+            try:
+                if locator.count() == 0:
+                    continue
+
+                locator.scroll_into_view_if_needed()
+                locator.wait_for(state="visible", timeout=5000)
+                search_input = locator
+                break
+            except Exception:
+                continue
+
+        if search_input is None:
+            raise RuntimeError("No se encontró un input visible de búsqueda en Scopus")
+
+        search_input.click()
+        search_input.press("Control+A")
+        search_input.press("Backspace")
         search_input.fill(query)
 
-    def click_outside(self) -> None:
-        self.page.locator("body").click(position={"x": 10, "y": 10})
-
-    def click_search(self) -> None:
-        search_button = self.page.get_by_role("button", name="Search", exact=True)
-        search_button.wait_for()
-        search_button.click()
-
+        
     def search(self, query: str) -> None:
         self.fill_search_query(query)
-        self.click_outside()
-        self.click_search()
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.wait_for_load_state("networkidle")
+
+        submit_candidates = [
+            self.page.get_by_role("button", name="Search"),
+            self.page.locator('button[type="submit"]').first,
+        ]
+
+        for button in submit_candidates:
+            try:
+                if button.count() == 0:
+                    continue
+
+                button.scroll_into_view_if_needed()
+                button.wait_for(state="visible", timeout=5_000)
+                button.click()
+                self.wait_until_loaded()
+                return
+            except Exception:
+                continue
+
+        self.page.keyboard.press("Enter")
+        self.wait_until_loaded()
