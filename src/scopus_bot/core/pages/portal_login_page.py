@@ -1,10 +1,9 @@
 from playwright.sync_api import Page
 
 
-class LoginPage:
+class PortalLoginPage:
     USERNAME_INPUT = "input[name='username']"
-    INSTITUTION_SEARCH_BUTTON = "#bdd-els-searchBtn"
-    PASSWORD_INPUT = "#bdd-password"
+    PASSWORD_INPUT = "input[name='password']"
     SUBMIT_BUTTON = "button:has-text('Ingresar')"
 
     def __init__(self, page: Page) -> None:
@@ -15,12 +14,6 @@ class LoginPage:
 
     def fill_username(self, username: str) -> None:
         self.page.locator(self.USERNAME_INPUT).fill(username)
-
-    def click_search_user(self) -> None:
-        self.page.locator(self.INSTITUTION_SEARCH_BUTTON).click()
-
-    def wait_until_password_loaded(self) -> None:
-        self.page.wait_for_selector(self.PASSWORD_INPUT, state="visible")
 
     def fill_password(self, password: str) -> None:
         self.page.locator(self.PASSWORD_INPUT).fill(password)
@@ -35,8 +28,6 @@ class LoginPage:
     def login(self, username: str, password: str) -> None:
         self.wait_until_loaded()
         self.fill_username(username)
-        self.click_search_user()
-        self.wait_until_password_loaded()
         self.fill_password(password)
         self.click_ingresar()
         self.wait_until_authenticated()
