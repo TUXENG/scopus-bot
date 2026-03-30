@@ -6,8 +6,8 @@ def build_document_key(document: Document) -> str:
     if document.doi:
         return f"doi::{normalize_text(document.doi).lower()}"
 
-    normalized_title = normalize_text(document.title).lower()
-    normalized_year = str(document.year) if document.year is not None else "none"
+    normalized_title = normalize_text(document.title).lower()[:200]
+    normalized_year = str(document.year) if document.year is not None else "unknown"
 
     return f"title_year::{normalized_title}::{normalized_year}"
 

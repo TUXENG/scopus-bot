@@ -34,7 +34,7 @@ def run() -> None:
         output_dir = settings.output_dir / "csv"
         export_documents_by_keyword(
             documents_by_keyword=documents_by_keyword,
-            output_file=output_file,
+            output_dir=output_dir,
             logger=logger,
         )
 

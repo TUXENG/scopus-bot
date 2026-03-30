@@ -9,6 +9,7 @@ def export_documents_by_keyword(
     logger,
 ) -> None:
     exporter = CsvExporter()
+
     generated_files = exporter.export_documents_by_keyword(
         documents_by_keyword=documents_by_keyword,
         output_dir=output_dir,

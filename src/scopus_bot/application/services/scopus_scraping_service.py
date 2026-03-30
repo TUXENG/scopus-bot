@@ -2,8 +2,9 @@ from scopus_bot.config.keywords import KEYWORDS
 from scopus_bot.config.filters import (
     DOCUMENT_TYPE_TEST_IDS,
     SUBJECT_AREA_TEST_IDS,
-    NUMS_PAGE,
+    NUM_PAGES,
     FILTER_YEAR_TO,
+    DOCUMENT_TYPE_NAMES,
 )
 from scopus_bot.core.filters.document_type_filter import DocumentTypeFilter
 from scopus_bot.core.filters.subject_area_filter import SubjectAreaFilter
@@ -11,28 +12,22 @@ from scopus_bot.core.pages.scopus_page import ScopusPage
 from scopus_bot.core.pages.search_results_page import SearchResultsPage
 from scopus_bot.core.scraping.deduplicator import deduplicate_documents
 from scopus_bot.core.scraping.scopus_results_scraper import ScopusResultsScraper
+from scopus_bot.data.models import Document
 
 
-DOCUMENT_TYPE_NAMES = [
-    "Article",
-    "Review",
-    "Conference paper",
-]
 
-
-def scrape_documents_by_keyword(scopus_tab, logger) -> dict[str, list]:
+def scrape_documents_by_keyword(scopus_tab, logger) -> dict[str, list[Document]]:
     scopus_page = ScopusPage(scopus_tab)
     results_page = SearchResultsPage(scopus_tab)
     document_type_filter = DocumentTypeFilter(scopus_tab)
     scraper = ScopusResultsScraper(scopus_tab)
 
-    documents_by_keyword: dict[str, list] = {}
-    all_documents = []
+    documents_by_keyword: dict[str, list[Document]] = {}
+    all_documents: list[Document] = []
 
-    for index, keyword in enumerate(KEYWORDS):
+    for keyword in KEYWORDS:
         keyword_documents = _scrape_single_keyword(
             keyword=keyword,
-            index=index,
             scopus_page=scopus_page,
             results_page=results_page,
             document_type_filter=document_type_filter,
@@ -51,31 +46,33 @@ def scrape_documents_by_keyword(scopus_tab, logger) -> dict[str, list]:
 
         all_documents.extend(unique_keyword_documents)
 
-    logger.info("Total acumulado de documentos antes de deduplicar: %s", len(all_documents))
+    logger.info(
+        "Total acumulado de documentos antes de deduplicar globalmente: %s",
+        len(all_documents),
+    )
 
     unique_documents = deduplicate_documents(all_documents)
 
-    logger.info("Total de documentos después de deduplicar: %s", len(unique_documents))
+    logger.info(
+        "Total de documentos después de deduplicar globalmente: %s",
+        len(unique_documents),
+    )
 
     return documents_by_keyword
 
 
 def _scrape_single_keyword(
     keyword: str,
-    index: int,
     scopus_page: ScopusPage,
     results_page: SearchResultsPage,
     document_type_filter: DocumentTypeFilter,
     scraper: ScopusResultsScraper,
     logger,
-) -> list:
-    if index == 0:
-        scopus_page.search(keyword)
-        logger.info("Búsqueda enviada desde Scopus para keyword: %s", keyword)
-    else:
-        results_page.scroll_to_top()
-        results_page.search(keyword)
-        logger.info("Búsqueda enviada desde results page para keyword: %s", keyword)
+) -> list[Document]:
+    logger.info("Iniciando scraping para keyword: %s", keyword)
+
+    scopus_page.search(keyword)
+    logger.info("Búsqueda enviada para keyword: %s", keyword)
 
     results_page.wait_until_loaded()
     logger.info("Resultados cargados para keyword: %s", keyword)
@@ -89,11 +86,11 @@ def _scrape_single_keyword(
     )
 
     results_page.set_year_to(FILTER_YEAR_TO)
-    logger.info("Filtro de año TO aplicado: %s", FILTER_YEAR_TO)
+    logger.info("Filtro de año TO aplicado para keyword '%s': %s", keyword, FILTER_YEAR_TO)
 
-    _apply_subject_area_filter(results_page.page, keyword, logger)
+    _apply_subject_area_filter(page=scopus_page.page, keyword=keyword, logger=logger)
 
-    keyword_documents = []
+    keyword_documents: list[Document] = []
 
     for document_type_name in DOCUMENT_TYPE_NAMES:
         documents = _scrape_single_document_type(
@@ -107,7 +104,7 @@ def _scrape_single_keyword(
         keyword_documents.extend(documents)
 
     results_page.scroll_to_top()
-    logger.info("Scroll al top después de keyword: %s", keyword)
+    logger.info("Scraping finalizado para keyword: %s", keyword)
 
     return keyword_documents
 
@@ -140,7 +137,7 @@ def _scrape_single_document_type(
     document_type_name: str,
     keyword: str,
     logger,
-) -> list:
+) -> list[Document]:
     logger.info(
         "Iniciando extracción para keyword '%s' y Document Type: %s",
         keyword,
@@ -171,7 +168,7 @@ def _scrape_single_document_type(
         document_type_name=document_type_name,
         logger=logger,
         keyword=keyword,
-        max_pages=NUMS_PAGE,
+        max_pages=NUM_PAGES,
     )
 
     logger.info(
@@ -191,8 +188,8 @@ def _scrape_all_pages_for_document_type(
     logger,
     keyword: str,
     max_pages: int = 10,
-) -> list:
-    documents = []
+) -> list[Document]:
+    documents: list[Document] = []
     current_page = 1
 
     while current_page <= max_pages:
@@ -205,7 +202,6 @@ def _scrape_all_pages_for_document_type(
 
         page_documents = scraper.extract_current_page(
             document_type=document_type_name,
-            keyword=keyword,
         )
 
         logger.info(

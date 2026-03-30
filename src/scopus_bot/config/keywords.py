@@ -1,25 +1,26 @@
-KEYWORDS = [
+from typing import Final
+
+
+KEYWORDS: Final[list[str]] = [
     "Disasters",
     "Disaster Management",
     "Disaster Prevention",
     "Floods",
-    "Fires",
     "Flooding",
-    "Forecasting",
     "Flood Control",
     "Flood Risk Management",
+    "Forecasting",
+    "Fires",
+    "Earthquakes",
     "Risk Assessment",
-    "Risks Assessments",
     "Risk Analysis",
-    "Risk Perception",   
-    "Risk Factor",
+    "Risk Perception",
     "Risk Factors",
     "Risk Identification",
     "Risk Mitigation",
-    "Earthquakes",
     "Environmental Impact",
     "Environmental Management",
     "Environmental Protection",
     "Vulnerability",
-    "Climate change",
+    "Climate Change",
 ]
