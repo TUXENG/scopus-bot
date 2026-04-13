@@ -19,11 +19,17 @@ class LibraryResourcesPage:
 
         raise RuntimeError("No se encontró la card de Scopus después de hacer scroll")
 
-    def open_scopus(self) -> None:
+    def open_scopus_in_new_tab(self) -> Page:
         scopus_card = self.page.locator("text=Scopus").first
         scopus_card.wait_for()
-        scopus_card.click()
 
-    def scroll_and_open_scopus(self) -> None:
+        with self.page.context.expect_page() as new_page_info:
+            scopus_card.click()
+
+        new_page = new_page_info.value
+        new_page.wait_for_load_state("domcontentloaded")
+        return new_page
+
+    def scroll_and_open_scopus_in_new_tab(self) -> Page:
         self.scroll_until_scopus_visible()
-        self.open_scopus()
+        return self.open_scopus_in_new_tab()
